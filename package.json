@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/zarick1/natours/issues"
   },
-  "homepage": "https://github.com/zarick1/natours#readme"
+  "homepage": "https://github.com/zarick1/natours#readme",
+  "dependencies": {
+    "express": "^4.21.2"
+  }
 }
