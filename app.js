@@ -78,6 +78,22 @@ app.patch('/api/v1/tours/:id', (req, res) => {
   );
 });
 
+app.delete('/api/v1/tours/:id', (req, res) => {
+  const tourToDelete = tours.findIndex((tour) => tour.id === +req.params.id);
+  //console.log(tourToDelete);
+  if (tourToDelete === -1)
+    return res.status(404).json({ status: 'fail', message: 'Not Founds' });
+  tours.splice(tourToDelete, 1);
+
+  fs.writeFile(
+    `${__dirname}/dev-data/data/tours-simple.json`,
+    JSON.stringify(tours),
+    (err) => {
+      res.status(204).json({ status: 'success', data: null });
+    }
+  );
+});
+
 const port = 3000;
 app.listen(port, () => {
   console.log(`App running on ${port}....`);
