@@ -2,7 +2,6 @@ const fs = require('fs');
 const express = require('express');
 
 const app = express();
-
 app.use(express.json());
 
 const tours = JSON.parse(
@@ -10,7 +9,7 @@ const tours = JSON.parse(
 );
 
 // Routing handler
-app.get('/api/v1/tours', (req, res) => {
+const getAllTours = (req, res) => {
   res.status(200).json({
     status: 'success',
     results: tours.length,
@@ -18,9 +17,9 @@ app.get('/api/v1/tours', (req, res) => {
       tours: tours,
     },
   });
-});
+};
 
-app.get('/api/v1/tours/:id', (req, res) => {
+const getTour = (req, res) => {
   const id = +req.params.id;
   const tour = tours.find((tour) => tour.id === id);
 
@@ -33,9 +32,9 @@ app.get('/api/v1/tours/:id', (req, res) => {
       tour,
     },
   });
-});
+};
 
-app.post('/api/v1/tours', (req, res) => {
+const createTour = (req, res) => {
   const newId = tours[tours.length - 1].id + 1;
   const newTour = Object.assign({ id: newId }, req.body);
   tours.push(newTour);
@@ -52,9 +51,9 @@ app.post('/api/v1/tours', (req, res) => {
       });
     }
   );
-});
+};
 
-app.patch('/api/v1/tours/:id', (req, res) => {
+const updateTour = (req, res) => {
   const updateTour = tours.find((tour) => tour.id === +req.params.id);
 
   if (!updateTour) return res.status(404).send('Not Found');
@@ -63,7 +62,7 @@ app.patch('/api/v1/tours/:id', (req, res) => {
   propertiesToUpdate.forEach((property) => {
     updateTour[property] = req.body[property];
   });
-  console.log(tours);
+
   fs.writeFile(
     `${__dirname}/dev-data/data/tours-simple.json`,
     JSON.stringify(tours),
@@ -76,9 +75,9 @@ app.patch('/api/v1/tours/:id', (req, res) => {
       });
     }
   );
-});
+};
 
-app.delete('/api/v1/tours/:id', (req, res) => {
+const deleteTour = (req, res) => {
   const tourToDelete = tours.findIndex((tour) => tour.id === +req.params.id);
   //console.log(tourToDelete);
   if (tourToDelete === -1)
@@ -92,7 +91,14 @@ app.delete('/api/v1/tours/:id', (req, res) => {
       res.status(204).json({ status: 'success', data: null });
     }
   );
-});
+};
+
+app.route('/api/v1/tours').get(getAllTours).post(createTour);
+app
+  .route('/api/v1/tours/:id')
+  .get(getTour)
+  .patch(updateTour)
+  .delete(deleteTour);
 
 const port = 3000;
 app.listen(port, () => {
