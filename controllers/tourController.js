@@ -4,6 +4,22 @@ const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
 );
 
+exports.checkBody = (req, res, next) => {
+  if (!(req.body.price && req.body.name))
+    return res.status(400).json({
+      status: 'faild',
+      message: 'Bad request, must contain price and name propery',
+    });
+  console.log(req.body);
+  next();
+};
+
+exports.checkID = (req, res, next, val) => {
+  if (req.params.id > tours.length)
+    return res.status(404).json({ status: 'Faild', message: 'Inaviled ID' });
+  next();
+};
+
 exports.getAllTours = (req, res) => {
   res.status(200).json({
     status: 'success',
@@ -19,8 +35,8 @@ exports.getTour = (req, res) => {
   const id = +req.params.id;
   const tour = tours.find((tour) => tour.id === id);
 
-  if (!tour)
-    return res.status(404).json({ status: 'Failed', message: 'Invalid ID' });
+  // if (!tour)
+  //   return res.status(404).json({ status: 'Failed', message: 'Invalid ID' });
 
   res.status(200).json({
     status: 'success',
@@ -52,7 +68,7 @@ exports.createTour = (req, res) => {
 exports.updateTour = (req, res) => {
   const updateTour = tours.find((tour) => tour.id === +req.params.id);
 
-  if (!updateTour) return res.status(404).send('Not Found');
+  // if (!updateTour) return res.status(404).send('Not Found');
 
   const propertiesToUpdate = Object.keys(req.body);
   propertiesToUpdate.forEach((property) => {
@@ -76,8 +92,8 @@ exports.updateTour = (req, res) => {
 exports.deleteTour = (req, res) => {
   const tourToDelete = tours.findIndex((tour) => tour.id === +req.params.id);
   //console.log(tourToDelete);
-  if (tourToDelete === -1)
-    return res.status(404).json({ status: 'fail', message: 'Not Founds' });
+  // if (tourToDelete === -1)
+  //   return res.status(404).json({ status: 'fail', message: 'Not Founds' });
   tours.splice(tourToDelete, 1);
 
   fs.writeFile(

@@ -20,5 +20,4 @@ app.use(morgan('dev'));
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
-// 3) START SERVER
 module.exports = app;
