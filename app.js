@@ -14,7 +14,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(morgan('dev'));
+if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
 // 2) ROUTES
 app.use('/api/v1/tours', tourRouter);
