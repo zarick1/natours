@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const slugify = require('slugify');
 
 const tourSchema = mongoose.Schema(
   {
@@ -8,6 +9,7 @@ const tourSchema = mongoose.Schema(
       unique: true,
       trim: true
     },
+    slug: String,
     duration: {
       type: Number,
       required: [true, 'A tour must have a duration']
@@ -57,6 +59,11 @@ const tourSchema = mongoose.Schema(
   // removes non-schema properties from filter
   // { strictQuery: true }
 );
+
+tourSchema.pre('save', function (next) {
+  this.slug = slugify(this.name, { lower: true });
+  next();
+});
 
 const Tour = mongoose.model('Tour', tourSchema);
 
