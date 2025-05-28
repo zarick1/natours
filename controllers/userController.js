@@ -5,6 +5,12 @@ const User = require('../models/userModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 
+/**
+ * Filters an object to include only specified fields
+ * @param {Object} object - The input object to filter
+ * @param {...string} allowedFields - The fields to include in the filtered object
+ * @returns {Object} A new object containing only the allowed fields
+ */
 const filterObj = (object, ...allowedFields) => {
   const newObj = {};
   Object.keys(object).forEach((el) => {
@@ -14,6 +20,13 @@ const filterObj = (object, ...allowedFields) => {
   return newObj;
 };
 
+/**
+ * Retrieves all users from the database
+ * @param {Object} req - The Express request object
+ * @param {Object} res - The Express response object
+ * @param {Function} next - The Express next middleware function
+ * @returns {Promise<void>}
+ */
 exports.getAllUsers = catchAsync(async (req, res, next) => {
   const users = await User.find();
 
@@ -26,6 +39,13 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Updates the current user's data (name and email only)
+ * @param {Object} req - The Express request object
+ * @param {Object} res - The Express response object
+ * @param {Function} next - The Express next middleware function
+ * @returns {Promise<void>}
+ */
 exports.updateMe = catchAsync(async (req, res, next) => {
   // 1) Create error if user post password data
   if (req.body.password || req.body.passwordConfirm)
@@ -50,12 +70,22 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Soft-deletes the current user by setting active to false
+ * @param {Object} req - The Express request object
+ * @param {Object} res - The Express response object
+ * @param {Function} next - The Express next middleware function
+ * @returns {Promise<void>}
+ */
 exports.deleteMe = catchAsync(async (req, res, next) => {
   await User.findByIdAndUpdate(req.user.id, { active: false });
 
   res.status(204).json({ status: 'success', data: null });
 });
 
+//////////////////////
+// NOT IMPLEMENTED //
+/////////////////////
 exports.getUser = (req, res) => {
   res.status(500).json({
     status: 'Error',

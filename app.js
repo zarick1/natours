@@ -61,6 +61,7 @@ app.use(
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
+// Handle undefined routes by throwing a 404 error
 app.all('*', (req, res, next) => {
   const err = new AppError(
     `Cannot find ${req.originalUrl} on this server!`,

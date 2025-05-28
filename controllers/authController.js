@@ -9,11 +9,22 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const sendEmail = require('../utils/email');
 
+/**
+ * Signs a JWT with the user ID
+ * @param {string} id - The user ID to include in the JWT payload
+ * @returns {string} The signed JWT
+ */
 const signJWToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN
   });
 
+/**
+ * Creates a JWT, sets it as a cookie, and sends it in the response
+ * @param {Object} user - The user object from the database
+ * @param {number} statusCode - The HTTP status code for the response
+ * @param {Object} res - The Express response object
+ */
 const createSendToken = (user, statusCode, res) => {
   const token = signJWToken(user._id);
 
@@ -39,6 +50,13 @@ const createSendToken = (user, statusCode, res) => {
   });
 };
 
+/**
+ * Handles user signup by creating a new user and sending a JWT
+ * @param {Object} req - The Express request object
+ * @param {Object} res - The Express response object
+ * @param {Function} next - The Express next middleware function
+ * @returns {Promise<void>}
+ */
 exports.signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
     name: req.body.name,
@@ -51,6 +69,13 @@ exports.signup = catchAsync(async (req, res, next) => {
   createSendToken(newUser, 201, res);
 });
 
+/**
+ * Handles user login by verifying credentials and sending a JWT
+ * @param {Object} req - The Express request object
+ * @param {Object} res - The Express response object
+ * @param {Function} next - The Express next middleware function
+ * @returns {Promise<void>}
+ */
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
@@ -68,6 +93,13 @@ exports.login = catchAsync(async (req, res, next) => {
   createSendToken(user, 200, res);
 });
 
+/**
+ * Protects routes by verifying JWT and checking user validity
+ * @param {Object} req - The Express request object
+ * @param {Object} res - The Express response object
+ * @param {Function} next - The Express next middleware function
+ * @returns {Promise<void>}
+ */
 exports.protect = catchAsync(async (req, res, next) => {
   // 1) Getting token and check if it is there
   let token;
@@ -96,6 +128,11 @@ exports.protect = catchAsync(async (req, res, next) => {
   next();
 });
 
+/**
+ * Restricts access to specific user roles
+ * @param {...string} roles - The allowed roles (e.g., 'admin', 'lead-guide')
+ * @returns {Function} Middleware function to check user role
+ */
 exports.restrictTo =
   (...roles) =>
   (req, res, next) => {
@@ -106,6 +143,13 @@ exports.restrictTo =
     next();
   };
 
+/**
+ * Handles forgot password requests by sending a reset token via email
+ * @param {Object} req - The Express request object
+ * @param {Object} res - The Express response object
+ * @param {Function} next - The Express next middleware function
+ * @returns {Promise<void>}
+ */
 exports.forgotPassword = catchAsync(async (req, res, next) => {
   // 1) get user based on posted email
   const user = await User.findOne({ email: req.body.email });
@@ -147,6 +191,13 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   }
 });
 
+/**
+ * Resets a user’s password using a valid reset token
+ * @param {Object} req - The Express request object
+ * @param {Object} res - The Express response object
+ * @param {Function} next - The Express next middleware function
+ * @returns {Promise<void>}
+ */
 exports.resetPassword = catchAsync(async (req, res, next) => {
   // 1) Get user based on token
   const hashedToken = crypto
@@ -179,6 +230,13 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   createSendToken(user, 200, res);
 });
 
+/**
+ * Updates the password for an authenticated user
+ * @param {Object} req - The Express request object
+ * @param {Object} res - The Express response object
+ * @param {Function} next - The Express next middleware function
+ * @returns {Promise<void>}
+ */
 exports.updatePassword = catchAsync(async (req, res, next) => {
   // 1) Get user from collection
   const user = await User.findById(req.user._id).select('+password');

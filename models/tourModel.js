@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const slugify = require('slugify');
 //const validator = require('validator');
 
+// Define the Mongoose schema for the Tour model
 const tourSchema = mongoose.Schema(
   {
     name: {
@@ -79,11 +80,13 @@ const tourSchema = mongoose.Schema(
   // { strictQuery: true }
 );
 
+// Pre-save middleware to generate a slug from the tour name
 tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });
   next();
 });
 
+// Create and export the Tour model based on the schema
 const Tour = mongoose.model('Tour', tourSchema);
 
 module.exports = Tour;
